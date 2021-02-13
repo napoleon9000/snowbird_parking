@@ -9,12 +9,13 @@ interval = 30
 screenshot = None
 driver = webdriver.Chrome(executable_path='./chromedriver')
 driver.get("https://www.snowbird.com/parking/#parking_reservation")
+driver.implicitly_wait(10)
 n = 0
 while True:
     try:
         print(datetime.datetime.now())
 
-        driver.implicitly_wait(8)
+        driver.implicitly_wait(10)
         elem1 = driver.find_element_by_xpath('//iframe')
         driver.switch_to.frame(elem1)
 

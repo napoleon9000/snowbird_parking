@@ -1,3 +1,5 @@
 PIL
 numpy
-selenium
+msedge-selenium-tools==3.141.2
+python-dateutil==2.8.0
+selenium==3.141.0
