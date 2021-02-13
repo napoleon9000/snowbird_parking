@@ -9,5 +9,5 @@
 4. Run [find_parking_selenium.py](find_parking_selenium.py)
 
 ### Book ikon pass 
-
- 4. Run [ikon_reservation.py](ikon_reservation.py)
+ 4. Copy [.env-example](.env-example) and rename it to `.env`. Change the email and password.
+ 5. Run [ikon_reservation.py](ikon_reservation.py)

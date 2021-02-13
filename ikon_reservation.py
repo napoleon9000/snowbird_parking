@@ -6,6 +6,10 @@ from selenium.webdriver.common.by import By
 from selenium import webdriver
 import calendar
 import time, os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Date to look for reservations on
 date_str = "2021-2-19"
@@ -18,8 +22,9 @@ retry_wait_in_sec = 60
 max_attempts = 0
 
 # Email and Password of account
-email = ""
-password = ""
+
+email = os.getenv('email')
+password = os.getenv('password')
 
 # Resort to reserve at as listed on the Ikon pass website
 resort = "Brighton"
