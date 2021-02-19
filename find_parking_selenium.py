@@ -6,19 +6,20 @@ import numpy as np
 from selenium import webdriver
 
 interval = 30
+# im_frame = Image.open(f'screenshot_nospot.png')
 screenshot = None
 driver = webdriver.Chrome(executable_path='./chromedriver')
 driver.get("https://www.snowbird.com/parking/#parking_reservation")
-driver.implicitly_wait(10)
+time.sleep(15)
 n = 0
 while True:
     try:
         print(datetime.datetime.now())
 
-        driver.implicitly_wait(10)
+
         elem1 = driver.find_element_by_xpath('//iframe')
         driver.switch_to.frame(elem1)
-
+        driver.implicitly_wait(10)
         elem2 = driver.find_element_by_xpath('//div[2]/div/table/tbody/tr[3]/td[5]/div')
         elem2.screenshot(f'screenshot_{n}.png')
         im_frame = Image.open(f'screenshot_{n}.png')

@@ -68,67 +68,72 @@ print("Logged In")
 tries = 0
 
 while max_attempts <= 0 or tries < max_attempts:
-    # select resort
-    search = driver.find_element_by_css_selector("input.react-autosuggest__input")
-    search.send_keys(resort)
-    button = driver.find_element_by_css_selector("li#react-autowhatever-resort-picker-section-1-item-0")
-    button.click()
-    button = driver.find_element_by_xpath("//span[contains(text(), 'Continue')]")
-    button.click()
+    try:
+        # select resort
+        search = driver.find_element_by_css_selector("input.react-autosuggest__input")
+        search.send_keys(resort)
+        button = driver.find_element_by_css_selector("li#react-autowhatever-resort-picker-section-1-item-0")
+        button.click()
+        button = driver.find_element_by_xpath("//span[contains(text(), 'Continue')]")
+        button.click()
 
-    print("Selected " + resort)
+        print("Selected " + resort)
 
-    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.DayPicker-wrapper')))
-    remove_overlay()
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'div.DayPicker-wrapper')))
+        remove_overlay()
 
-    print("Looking for reservations on " + date_str)
+        print("Looking for reservations on " + date_str)
 
-    # select date
-    datepicker = driver.find_element_by_css_selector("div.DayPicker-wrapper")
-    month_selected = False
-    while not month_selected:
-        month_text = calendar.month_name[date.month]
-        month = datepicker.find_elements_by_xpath("//span[contains(text(), " + "'" + month_text + "')]")
-        if len(month) > 0:
-            month_selected = True
-        else:
-            button = datepicker.find_element_by_class_name("icon-chevron-right")
+        # select date
+        datepicker = driver.find_element_by_css_selector("div.DayPicker-wrapper")
+        month_selected = False
+        while not month_selected:
+            month_text = calendar.month_name[date.month]
+            month = datepicker.find_elements_by_xpath("//span[contains(text(), " + "'" + month_text + "')]")
+            if len(month) > 0:
+                month_selected = True
+            else:
+                button = datepicker.find_element_by_class_name("icon-chevron-right")
+                button.click()
+
+        day = datepicker.find_element_by_xpath("//div[@aria-label='" + date.strftime("%a %b %d %Y") + "']")
+        day.click()
+        day_classes = day.get_attribute(name="class")
+        available = "past" not in day_classes and "unavailable" not in day_classes
+        booked = "confirmed" in day_classes
+        div = driver.find_elements_by_xpath("//div[contains(text(), 'Reservation Limit Reached')]")
+        reservations_left = len(div) == 0
+
+        if available and not booked and reservations_left:
+            remove_overlay()
+            button = driver.find_element_by_xpath("//span[contains(text(), 'Save')]")
+            button.click()
+            button = driver.find_element_by_xpath("//span[contains(text(), 'Continue To Confirm')]")
             button.click()
 
-    day = datepicker.find_element_by_xpath("//div[@aria-label='" + date.strftime("%a %b %d %Y") + "']")
-    day.click()
-    day_classes = day.get_attribute(name="class")
-    available = "past" not in day_classes and "unavailable" not in day_classes
-    booked = "confirmed" in day_classes
-    div = driver.find_elements_by_xpath("//div[contains(text(), 'Reservation Limit Reached')]")
-    reservations_left = len(div) == 0
+            WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@type='checkbox']")))
+            button = driver.find_element_by_xpath("//input[@type='checkbox']")
+            button.click()
+            WebDriverWait(driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//span[contains(text(), 'Confirm Reservations')]")))
+            button = driver.find_element_by_xpath("//span[contains(text(), 'Confirm Reservations')]")
+            button.click()
+            with open("flag.txt", "w") as f:
+                f.write("Booked")
 
-    if available and not booked and reservations_left:
-        remove_overlay()
-        button = driver.find_element_by_xpath("//span[contains(text(), 'Save')]")
-        button.click()
-        button = driver.find_element_by_xpath("//span[contains(text(), 'Continue To Confirm')]")
-        button.click()
+            print("Booked successfully!")
+            os.system('say "lift ticket booked"')
+            break
 
-        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, "//input[@type='checkbox']")))
-        button = driver.find_element_by_xpath("//input[@type='checkbox']")
-        button.click()
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//span[contains(text(), 'Confirm Reservations')]")))
-        button = driver.find_element_by_xpath("//span[contains(text(), 'Confirm Reservations')]")
-        button.click()
-        with open("flag.txt", "w") as f:
-            f.write("Booked")
-
-        print("Booked successfully!")
-        os.system('say "lift ticket booked"')
+        driver.refresh()
+        time.sleep(retry_wait_in_sec)
+        tries = tries + 1
+        if (tries % 5 == 0):
+            print("Attempted " + str(tries) + " times...")
+    except Exception as e:
+        print(e)
+        os.system('say "Something is wrong"')
         break
-
-    driver.refresh()
-    time.sleep(retry_wait_in_sec)
-    tries = tries + 1
-    if (tries % 5 == 0):
-        print("Attempted " + str(tries) + " times...")
 
 with open("log.txt", "a") as f:
     f.write(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))

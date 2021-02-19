@@ -1,4 +1,4 @@
-PIL
+Pillow
 numpy
 python-dotenv
 msedge-selenium-tools==3.141.2
